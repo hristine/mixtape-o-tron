@@ -1,4 +1,3 @@
-
 var nestapikey = "LHDCAIKGCIJUU8PO3",
 	nest = nest.nest(nestapikey),
 	songsTemplate = Handlebars.compile([
@@ -8,6 +7,7 @@ var nestapikey = "LHDCAIKGCIJUU8PO3",
 				'<span class="includeSong">&#8679;</span><span class="removeSong">&#215;</span>',
 				'<b>{{ title }}</b> - {{ artist_name }} ',
 			'</span>',
+			'<button class="moreSongs">More Song Suggestions</button>',			
 			'<button class="moreArtists">More Artist Suggestions</button>',
 		'</li>',
 		'{{/each }}'
@@ -21,10 +21,14 @@ var nestapikey = "LHDCAIKGCIJUU8PO3",
 		'{{# each artists }}',
 		'<div data-artist-id="{{ id }}" class="artistName">{{ name }}</div>',
 		'{{/each }}'
-	].join(''));
+	].join('')),
+	songLookup = {};
 
 function listMoreSongs(error, results) {
 	jQuery('#foundit').empty().append(songsTemplate({results: results}));
+	jQuery.each(results, function (_, song) {
+		songLookup[song.id] = song;
+	});
 }
 function findMoreSongs() {
 	var args = {
@@ -38,8 +42,25 @@ function findMoreSongs() {
 	nest.searchSongs(args, listMoreSongs);
 }
 
+function findSimilarSongs() {
+	var songId = jQuery(this).parents('li').attr('data-song-id'),
+		song = songLookup[songId];
+
+	var args = {
+		bucket: ['audio_summary','song_type'],
+		min_energy: song.audio_summary.energy * 0.8,
+		max_energy: Math.min(song.audio_summary.energy * 1.2, 1),
+		min_tempo: song.audio_summary.tempo * 0.8,
+		max_tempo: Math.min(song.audio_summary.tempo * 1.2, 500),
+		artist: song.artist_name
+	};
+	nest.searchSongs(args, listMoreSongs);
+}
+
 function listSimilarArtists(error, results) {
-	jQuery('#artists').append(artistsTemplate({artists: results.artists}));
+	jQuery('#artists')
+		.empty()
+		.append(artistsTemplate({artists: results.artists}));
 }
 function findSimilarArtists() {
 	var artistId = jQuery(this).parents('li').attr('data-artist-id'),
@@ -96,10 +117,12 @@ jQuery(document).ready(function () {
 		.on('change', checkCriteria);
 	jQuery("#foundit")
 		.on('click', '.includeSong', moveSongToPlaylist)
-		.on('click', '.moreArtists', findSimilarArtists);
+		.on('click', '.moreArtists', findSimilarArtists)
+		.on('click', '.moreSongs', findSimilarSongs);
 	jQuery('#keepit')
 		.on('click', '.moreArtists', findSimilarArtists)
-		.on('click', '.removeSong', removeSongFromPlaylist);
+		.on('click', '.removeSong', removeSongFromPlaylist)
+		.on('click', '.moreSongs', findSimilarSongs);
 	jQuery('#artists')
 		.on('click', '.artistName', addArtistToCriteria);
 

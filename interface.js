@@ -1,7 +1,7 @@
 var nest = nest.nest("LHDCAIKGCIJUU8PO3"),
 	songsTemplate = Handlebars.compile([
 		'{{#each results }}',
-		'<li><b>{{ title }}</b> - {{ artist_name }}</li>',
+		'<li data-song-id="{{ id }}" class="song"><b>{{ title }}</b> - {{ artist_name }}</li>',
 		'{{/each }}'
 	].join(''));
 
@@ -18,6 +18,13 @@ function findMoreSongs() {
 	nest.searchSongs(args, listMoreSongs);
 }
 
+function moveSongToPlaylist() {
+	var elt = jQuery(this);
+	jQuery('#keepit').append(elt);
+	jQuery('#keepit .none').hide();
+}
+
 jQuery(document).ready(function () {
 	jQuery('#doSearch').click(findMoreSongs);
+	jQuery("#foundit").on('click', '.song', moveSongToPlaylist);
 });

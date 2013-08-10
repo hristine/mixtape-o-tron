@@ -14,3 +14,26 @@ body {
 #keepit .includeSong {
 	display: none;
 }
+
+.includeSong,
+.removeSong {
+	margin-right: 5px;
+	cursor: pointer;
+}
+
+.removeSong {
+	color: red;
+}
+
+.moreArtists {
+	float: right;
+}
+
+li {
+	list-style: none;
+	clear: both;
+}
+
+#criteria {
+	clear: both;
+}

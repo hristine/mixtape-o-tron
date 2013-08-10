@@ -3,7 +3,13 @@ var nestapikey = "LHDCAIKGCIJUU8PO3",
 	nest = nest.nest(nestapikey),
 	songsTemplate = Handlebars.compile([
 		'{{#each results }}',
-		'<li data-song-id="{{ id }}" data-artist-id="{{ artist_id }}" class="song"><span class="includeSong">&#8679;</span><span class="removeSong">&#215;</span><b>{{ title }}</b> - {{ artist_name }} <button class="moreArtists">More Artist Suggestions</button></li>',
+		'<li data-song-id="{{ id }}" data-artist-id="{{ artist_id }}" class="song">',
+			'<span class="deets" style="float: left">',
+				'<span class="includeSong">&#8679;</span><span class="removeSong">&#215;</span>',
+				'<b>{{ title }}</b> - {{ artist_name }} ',
+			'</span>',
+			'<button class="moreArtists">More Artist Suggestions</button>',
+		'</li>',
 		'{{/each }}'
 	].join('')),
 	termsTemplate = Handlebars.compile([
@@ -21,7 +27,9 @@ function listMoreSongs(error, results) {
 	jQuery('#foundit').empty().append(songsTemplate({results: results}));
 }
 function findMoreSongs() {
-	var args = {};
+	var args = {
+		bucket: ['audio_summary','song_type']
+	};
 	jQuery('.criteria').each(function () {
 		if (jQuery(this).val()) {
 			args[jQuery(this).attr('name')] = jQuery(this).val();
